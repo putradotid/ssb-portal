@@ -2,63 +2,65 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\JadwalTurnamen;
+use App\Models\Ssb;
 use Illuminate\Http\Request;
 
 class JadwalTurnamenController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $turnamens = JadwalTurnamen::with('ssb')->latest()->paginate(10);
+        return view('jadwal_turnamen.index', compact('turnamens'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        $ssbs = Ssb::all();
+        return view('jadwal_turnamen.create', compact('ssbs'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'ssb_id' => 'required|exists:ssbs,id',
+            'nama_turnamen' => 'required|string|max:255',
+            'tanggal' => 'required|date',
+            'lokasi' => 'required|string|max:255'
+        ]);
+
+        JadwalTurnamen::create($request->all());
+
+        return redirect()->route('jadwal-turnamen.index')
+            ->with('success', 'Jadwal turnamen berhasil ditambahkan.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function edit(JadwalTurnamen $jadwal_turnamen)
     {
-        //
+        $ssbs = Ssb::all();
+        return view('jadwal_turnamen.edit', compact('jadwal_turnamen', 'ssbs'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function update(Request $request, JadwalTurnamen $jadwal_turnamen)
     {
-        //
+        $request->validate([
+            'ssb_id' => 'required|exists:ssbs,id',
+            'nama_turnamen' => 'required|string|max:255',
+            'tanggal' => 'required|date',
+            'lokasi' => 'required|string|max:255'
+        ]);
+
+        $jadwal_turnamen->update($request->all());
+
+        return redirect()->route('jadwal-turnamen.index')
+            ->with('success', 'Jadwal turnamen berhasil diperbarui.');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function destroy(JadwalTurnamen $jadwal_turnamen)
     {
-        //
-    }
+        $jadwal_turnamen->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return redirect()->route('jadwal-turnamen.index')
+            ->with('success', 'Jadwal turnamen berhasil dihapus.');
     }
 }
