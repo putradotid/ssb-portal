@@ -29,7 +29,7 @@ Solusi: Menghapus folder vendor dan composer.lock, lalu menjalankan ulang compos
 
 2. Tampilan tabel tidak rapi (flex pada <td>)
 Masalah: Layout tabel rusak karena penggunaan flex di elemen tabel.
-Solusi: Memindahkan flex ke dalam <div> di dalam <td> agar struktur HTML tetap valid.
+Solusi: Memindahkan flex ke dalam "<div>" di dalam "<td>" agar struktur HTML tetap valid.
 
 3. Route Model Binding tidak sinkron
 Masalah: Parameter route tidak sesuai dengan nama variabel controller.
