@@ -2,63 +2,63 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\JadwalLatihan;
+use App\Models\Ssb;
 use Illuminate\Http\Request;
 
 class JadwalLatihanController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $jadwals = JadwalLatihan::with('ssb')->latest()->paginate(10);
+        return view('jadwal_latihan.index', compact('jadwals'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        $ssbs = Ssb::all();
+        return view('jadwal_latihan.create', compact('ssbs'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'ssb_id' => 'required|exists:ssbs,id',
+            'tanggal' => 'required|date',
+            'lokasi' => 'required|string|max:255'
+        ]);
+
+        JadwalLatihan::create($request->all());
+
+        return redirect()->route('jadwal-latihan.index')
+            ->with('success', 'Jadwal latihan berhasil ditambahkan.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function edit(JadwalLatihan $jadwal_latihan)
     {
-        //
+        $ssbs = Ssb::all();
+        return view('jadwal_latihan.edit', compact('jadwal_latihan', 'ssbs'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function update(Request $request, JadwalLatihan $jadwal_latihan)
     {
-        //
+        $request->validate([
+            'ssb_id' => 'required|exists:ssbs,id',
+            'tanggal' => 'required|date',
+            'lokasi' => 'required|string|max:255'
+        ]);
+
+        $jadwal_latihan->update($request->all());
+
+        return redirect()->route('jadwal-latihan.index')
+            ->with('success', 'Jadwal latihan berhasil diperbarui.');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function destroy(JadwalLatihan $jadwal_latihan)
     {
-        //
-    }
+        $jadwal_latihan->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return redirect()->route('jadwal-latihan.index')
+            ->with('success', 'Jadwal latihan berhasil dihapus.');
     }
 }

@@ -2,80 +2,99 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Siswa;
+use App\Models\Ssb;
+use Illuminate\Http\Request;
 
 class SiswaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
-        $query = Siswa::query();
-
-        if ($request->umur) {
-            $query->where('umur', $request->umur);
-        }
+        $query = Siswa::with('ssb');
 
         if ($request->ssb_id) {
             $query->where('ssb_id', $request->ssb_id);
+        }
+
+        if ($request->umur) {
+            $query->where('umur', $request->umur);
         }
 
         if ($request->status !== null) {
             $query->where('status_aktif', $request->status);
         }
 
-        $siswas = $query->paginate(10);
+        $siswas = $query->latest()->paginate(10);
+        $ssbs = Ssb::all();
 
-        return view('siswa.index', compact('siswas'));
+        return view('siswa.index', compact('siswas', 'ssbs'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        $ssbs = Ssb::all();
+        return view('siswa.create', compact('ssbs'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'ssb_id' => 'required|exists:ssbs,id',
+            'nama' => 'required|string|max:255',
+            'umur' => 'required|integer|min:5|max:25',
+            'posisi' => 'required|string|max:255',
+            'foto' => 'nullable|image|max:2048'
+        ]);
+
+        $data = $request->only('ssb_id', 'nama', 'umur', 'posisi');
+
+        if ($request->hasFile('foto')) {
+            $data['foto'] = $request->file('foto')->store('siswa', 'public');
+        }
+
+        $data['status_aktif'] = $request->has('status_aktif');
+
+        Siswa::create($data);
+
+        return redirect()->route('siswa.index')
+            ->with('success', 'Siswa berhasil ditambahkan.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function edit(Siswa $siswa)
     {
-        //
+        $ssbs = Ssb::all();
+        return view('siswa.edit', compact('siswa', 'ssbs'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function update(Request $request, Siswa $siswa)
     {
-        //
+        $request->validate([
+            'ssb_id' => 'required|exists:ssbs,id',
+            'nama' => 'required|string|max:255',
+            'umur' => 'required|integer|min:5|max:25',
+            'posisi' => 'required|string|max:255',
+            'foto' => 'nullable|image|max:2048'
+        ]);
+
+        $data = $request->only('ssb_id', 'nama', 'umur', 'posisi');
+
+        if ($request->hasFile('foto')) {
+            $data['foto'] = $request->file('foto')->store('siswa', 'public');
+        }
+
+        $data['status_aktif'] = $request->has('status_aktif');
+
+        $siswa->update($data);
+
+        return redirect()->route('siswa.index')
+            ->with('success', 'Siswa berhasil diperbarui.');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function destroy(Siswa $siswa)
     {
-        //
-    }
+        $siswa->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return redirect()->route('siswa.index')
+            ->with('success', 'Siswa berhasil dihapus.');
     }
 }

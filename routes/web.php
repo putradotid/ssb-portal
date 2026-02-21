@@ -24,8 +24,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('jadwal-latihan', JadwalLatihanController::class);
     Route::resource('jadwal-turnamen', JadwalTurnamenController::class);
 
-    Route::get('/ssb/{id}/export-pdf', [SsbController::class, 'exportPdf'])
-        ->name('ssb.export');
+    Route::get('/ssb/{ssb}/export-pdf', [SsbController::class, 'exportPdf'])
+    ->middleware('auth')
+    ->name('ssb.export');
 });
 
 require __DIR__.'/auth.php';

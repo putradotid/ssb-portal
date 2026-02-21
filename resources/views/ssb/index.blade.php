@@ -49,7 +49,11 @@
                                 </td>
 
                                 <td class="px-6 py-4 text-center space-x-2">
-
+                                    <a href="{{ route('ssb.export', $ssb) }}"
+                                    class="text-green-600 hover:underline">
+                                        Export PDF
+                                    </a>
+                                    
                                     <a href="{{ route('ssb.edit', $ssb) }}"
                                     class="text-blue-600 hover:underline font-medium">
                                         Edit

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Ssb;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class SsbController extends Controller
 {
@@ -81,5 +82,14 @@ class SsbController extends Controller
 
         return redirect()->route('ssb.index')
             ->with('success', 'SSB berhasil dihapus.');
+    }
+
+    public function exportPdf(Ssb $ssb)
+    {
+        $ssb->load('siswas');
+
+        $pdf = Pdf::loadView('pdf.pemain', compact('ssb'));
+
+        return $pdf->download('daftar-pemain-'.$ssb->nama.'.pdf');
     }
 }
